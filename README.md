@@ -1,5 +1,5 @@
 ### Scrapy Learning and Exercise
-- scrapy原理
+- scrapy组成
 
 ![](http://7xstc1.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160509152642.png)
 
