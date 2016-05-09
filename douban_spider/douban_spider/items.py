@@ -12,5 +12,6 @@ class DoubanSpiderItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     movie_name = scrapy.Field()
+    print movie_name
     star = scrapy.Field()
     quote = scrapy.Field()

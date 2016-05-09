@@ -1,21 +1,22 @@
 #!/usr/bin/env python
 # coding=utf-8
 from scrapy.selector import Selector
+from scrapy.http import Request 
 from scrapy.spiders import Rule,CrawlSpider
-from scrapy.linkextractors.sgml import SgmlLinkExtractor
+from scrapy.linkextractors import LinkExtractor
 
 from douban_spider.items import DoubanSpiderItem
 class DoubanSpider(CrawlSpider):
 
     name = "douban_multi_movie_spider"
-    allowed_domains = ["www.movie.douban.com"]
+    allowed_domains = []
     
     start_urls = [
         'http://movie.douban.com/top250?start=0&filter=&type='
     ]
 
     rules=(
-        Rule(SgmlLinkExtractor(allow=(r'http://movie\.douban\.com/top250\?start=\d+&filter=&type=')),callback='parse',follow=True)
+        Rule(LinkExtractor(allow=(r'http://movie\.douban\.com/top250\?start=\d+&filter=&type=')),callback='parse',follow=True)
         ,
     )
 
@@ -34,3 +35,8 @@ class DoubanSpider(CrawlSpider):
         item['quote'] = [n.encode('utf-8') for n in quote]
 
         yield item
+        print item
+        next_page = sel.xpath('//span[@class="next"]/a/@href')
+        if next_page:
+            url = response.urljoin(next_page[0].extract())
+            yield Request(url,self.parse)
