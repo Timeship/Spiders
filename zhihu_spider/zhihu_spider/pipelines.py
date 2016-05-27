@@ -5,30 +5,52 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
-import json
-import codecs
+#import json
+#import codecs
 import sys
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+import mongoengine
+mongoengine.connect('zhihudata',host='localhost:27017')
+
+class ZhihuMongo(mongoengine.Document):
+    url = mongoengine.StringField()
+    name = mongoengine.StringField()
+    bio = mongoengine.StringField()
+    location = mongoengine.StringField()
+    business = mongoengine.StringField()
+    gender = mongoengine.StringField()
+    avatar = mongoengine.StringField()
+    education = mongoengine.StringField()
+    major = mongoengine.StringField()
+    employment = mongoengine.StringField()
+    position = mongoengine.StringField()
+    content = mongoengine.StringField()
+    ask = mongoengine.StringField()
+    answer = mongoengine.StringField()
+    agree = mongoengine.StringField()
+    thanks = mongoengine.StringField()
 class ZhihuSpiderPipeline(object):
-    pass
-    #def __init__(self):
-    #    self.file = codecs.open('zhihu_sp.json',mode='wb',encoding='utf-8')
-
-    #def process_item(self, item, spider):
-    #    line = 'the list:'+'\n'
-    #    for i in range(len(item['title'])):
-    #        #question_name = {'qusetion_name':item['name'][i]}
-    #        question_title = {'question_title':item['title'][i]}
-    #        question_description = {'question_description':item['description'][i]}
-    #        question_answer = {'question_answer':item['answer'][i]}
-    #        #line = line+json.dumps(question_name,ensure_ascii=False)
-    #        line = line+json.dumps(question_title,ensure_ascii=False)
-    #        line = line+json.dumps(question_description,ensure_ascii=False)
-    #        line = line+json.dumps(question_answer,ensure_ascii=False)
-    #    self.file.write(line)
-
-    #def close_spider(self,spider):
-    #    self.file.close()
+    def process_item(self,item,spider):
+        new_profile = ZhihuMongo(
+            url = item['url'],
+            name = item['name'],
+            bio = item['bio'],
+            location = item['location'],
+            business = item['business'],
+            gender = str(item['gender']),
+            avatar = item['avatar'],
+            education = item['education'],
+            major = item['major'],
+            employment = item['employment'],
+            position = item['position'],
+            content = item['content'],
+            ask = str(item['ask']),
+            answer = str(item['answer']),
+            agree = str(item['agree']),
+            thanks = str(item['thanks'])
+            )
+        new_profile.save()
+        return item

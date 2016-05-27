@@ -19,7 +19,7 @@ NEWSPIDER_MODULE = 'zhihu_spider.spiders'
 #USER_AGENT = 'zhihu_spider (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-DOWNLOAD_DELAY = 2
+#DOWNLOAD_DELAY = 1
 ROBOTSTXT_OBEY = False
 COOKIES_ENABLED = True
 RANDOMIZE_DOWNLOAD_DELAY = True
@@ -91,6 +91,12 @@ USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/536.5 (
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+MONGO_SERVER = 'localhost'
+MONGO_PORT = '27017'
+MONGO_DATABASE = 'zhihudata'
+MONGO_COLLECTION = 'zhihu'
 ITEM_PIPELINES={
     'zhihu_spider.pipelines.ZhihuSpiderPipeline':300,
 }
+#DEPTH_LIMIT=10

@@ -6,7 +6,7 @@ import StringIO
 
 from zhihu_spider.items import ZhihuSpiderItem
 
-class ZhihuSpider(scrapy.CrawlSpider):
+class ZhihuSpider(scrapy.spiders.CrawlSpider):
     name = "zhihu_an_spider"
     allowed_domains = []
     start_urls = [
@@ -25,11 +25,11 @@ class ZhihuSpider(scrapy.CrawlSpider):
         self.user_url = url
 
     def start_requests(self):
-        return [scrapy.Request("http://www.zhihu.com/login/email",headers=self.headers,callback = self.init)]
+        yield scrapy.Request("http://www.zhihu.com/login/email",headers=self.headers,callback = self.init)
 
     def init(self,response):
         self._xrsf = scrapy.selector.Selector(response).xpath('//input[@name="_xsrf"]/@value').extract()[0]
-        return scrapy.Request('http://www.zhihu.com/captcha.gif?type=login',callback=self.post_login) 
+        yield scrapy.Request('http://www.zhihu.com/captcha.gif?type=login',callback=self.post_login) 
     
     def getcapid(self,response):
         PIL.Image.open(StringIO.StringIO(response.body)).show()
@@ -37,7 +37,7 @@ class ZhihuSpider(scrapy.CrawlSpider):
 
     def post_login(self,response):
         print 'preparing login'
-        return [scrapy.FormRequest("http://www.zhihu.com/login/email",
+        yield scrapy.FormRequest("http://www.zhihu.com/login/email",
                                          headers = self.headers,
                                          formdata = {
                                              '_xsrf':self._xrsf,
@@ -46,7 +46,7 @@ class ZhihuSpider(scrapy.CrawlSpider):
                                              'remember_me':'true',
                                              'email':''
                                          },
-                                        callback=self.request_zhihu,dont_filter=True)]
+                                        callback=self.request_zhihu)
 
     def request_zhihu(self,response):
         yield scrapy.Request(url=self.user_url+'/about',
@@ -57,16 +57,22 @@ class ZhihuSpider(scrapy.CrawlSpider):
                      callback=self.user_start,dont_filter=True)
         yield scrapy.Request(url=self.user_url+'/followers',
                      headers = self.headers,
-                     callback=self.user_start)
+                     callback=self.user_start,dont_filter=True)
     
     def user_start(self,response):
         sel_root = response.xpath('//h2[@class="zm-list-content-title"]')
         if len(sel_root):
             for sel in sel_root:
                 people_url = sel.xpath('a/@href').extract()[0]
-                yield scrapy.Request(url=people_url+'/about',headers=self.headers,callback=self.user_parse,dont_filter=True)
-                yield scrapy.Request(url=people_url+'/followees',headers=self.headers,callback=self.user_start,dont_filter=True)
-                yield scrapy.Request(url=people_url+'/followers',headers=self.headers,callback=self.user_start,dont_filter=True)
+                yield scrapy.Request(url=people_url+'/about',
+                     headers=self.headers,
+                     callback=self.user_parse,dont_filter=True)
+                yield scrapy.Request(url=people_url+'/followees',
+                     headers=self.headers,
+                     callback=self.user_start,dont_filter=True)
+                yield scrapy.Request(url=people_url+'/followers',
+                     headers=self.headers,
+                     callback=self.user_start,dont_filter=True)
 
     def user_parse(self, response):
         def value(list):
